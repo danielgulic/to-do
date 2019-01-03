@@ -11,6 +11,6 @@ app.use(morgan('dev'));
 app.use(cors());
 app.use(express.json());
 
-app.use('/tasks', require('./routes/tasks.js'));
+app.use('/api/tasks', require('./routes/tasks.js'));
 
 app.listen(port, () => console.log('Listening on ' + port));

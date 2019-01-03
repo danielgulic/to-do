@@ -16,15 +16,16 @@ router.post('/', async (req, res) => {
   if (req.body.name.length < 1 || req.body.name.length > 45) return res.status(400).json({ error: 'Task name must be 1-45 characters long'});
   const tasks = await r.table('tasks').filter({ createdBy: req.query.id }).run();
   if (tasks.length > 50) return res.status(418).json({ error: 'There is a limit of 50 concurrent tasks per user' });
-  await r.table('tasks').insert({
+  const insert = await r.table('tasks').insert({
     createdBy: req.query.id,
+    done: false,
     name: sanitize(req.body.name, {
       allowedTags: [],
       allowedAttributes: {}
     }),
     createdAt: Date.now()
   }).run();
-  res.json({ tasks: await r.table('tasks').filter({ createdBy: req.query.id }).run() });
+  res.json({ task: await r.table('tasks').get(insert.generated_keys[0]) });
 });
 
 module.exports = router;
