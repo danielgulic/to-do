@@ -9,7 +9,7 @@ import Typography from '@material-ui/core/Typography';
 import Task from './Task';
 import NewTask from './NewTask';
 import randomstring from 'randomstring';
-import { API_BASE } from '../';
+import { API_BASE } from '../config';
 
 const styles = theme => ({
   card: {

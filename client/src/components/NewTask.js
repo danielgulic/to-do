@@ -1,15 +1,10 @@
 import React, { Component } from 'react';
 import { withStyles } from '@material-ui/core/styles';
 import ListItem from '@material-ui/core/ListItem';
-import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction';
 import ListItemText from '@material-ui/core/ListItemText';
 import Button from '@material-ui/core/Button';
-import IconButton from '@material-ui/core/IconButton';
-import DeleteIcon from '@material-ui/icons/Delete';
-import DoneIcon from '@material-ui/icons/Done';
-import Tooltip from '@material-ui/core/Tooltip';
 import TextField from '@material-ui/core/TextField';
-import { API_BASE } from '../';
+import { API_BASE } from '../config';
 
 const styles = theme => ({
   root: {
