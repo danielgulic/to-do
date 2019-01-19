@@ -7,7 +7,10 @@ import IconButton from '@material-ui/core/IconButton';
 import DeleteIcon from '@material-ui/icons/Delete';
 import DoneIcon from '@material-ui/icons/Done';
 import Tooltip from '@material-ui/core/Tooltip';
+import Typography from '@material-ui/core/Typography';
 import ago from 's-ago';
+import { API_BASE } from '../config';
+import { withSnackbar } from 'notistack';
 
 const styles = theme => ({
   root: {
@@ -23,20 +26,47 @@ const styles = theme => ({
 });
 
 class Task extends Component {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      done: this.props.task.done,
+      name: this.props.task.name
+    }
+
+    this.markAsDone = this.markAsDone.bind(this);
+  }
+
+  async markAsDone() {
+    if (this.state.done === true) return;
+    const res = await fetch(API_BASE + '/tasks/' + this.props.task.id + '?userId=' + window.localStorage.getItem('id').trim(), {
+      method: 'PATCH',
+      body: JSON.stringify({
+        done: true
+      }),
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    });
+    const json = await res.json();
+    if (json.error) return this.props.enqueueSnackbar(json.error, { autoHideDuration: 5000, variant: 'error' });
+    this.setState({ done: true });
+  }
+
   render() {
     const { classes } = this.props;
 
     return (
       <div className={classes.demo}>
-        <ListItem style={this.props.task.done ? { backgroundColor: '#b3ff66' } : {}}>
+        <ListItem style={this.state.done ? { backgroundColor: '#b3ff66' } : {}}>
           <ListItemText
-            primary={this.props.task.name}
+            primary={<Typography noWrap style={{fontSize: 17, WebkitTextSizeAdjust: 'none', MozTextSizeAdjust: 'none', msTextSizeAdjust: 'none'}}>{this.state.name}</Typography>}
             secondary={`Added ${ago(new Date(this.props.task.createdAt))}`}
           />
           <ListItemSecondaryAction>
-            {!this.props.task.done &&
+            {!this.state.done &&
             <Tooltip title='Mark as done' aria-label='Mark as done'>
-              <IconButton aria-label='Mark as done'>
+              <IconButton aria-label='Mark as done' onClick={this.markAsDone}>
                 <DoneIcon />
               </IconButton>
             </Tooltip>}
@@ -52,4 +82,4 @@ class Task extends Component {
   }
 }
 
-export default withStyles(styles)(Task);
+export default withStyles(styles)(withSnackbar(Task));

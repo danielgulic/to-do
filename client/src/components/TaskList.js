@@ -8,8 +8,9 @@ import List from '@material-ui/core/List';
 import Typography from '@material-ui/core/Typography';
 import Task from './Task';
 import NewTask from './NewTask';
-import randomstring from 'randomstring';
 import { API_BASE } from '../config';
+import uuidv4 from 'uuid/v4';
+import { withSnackbar } from 'notistack';
 
 const styles = theme => ({
   card: {
@@ -48,13 +49,14 @@ class TaskList extends Component {
 
   componentDidMount = async () => {
     let id;
-    if (!window.localStorage.getItem('id')) id = randomstring.generate(36)
+    if (!window.localStorage.getItem('id')) id = uuidv4();
     else id = window.localStorage.getItem('id').trim();
     window.localStorage.setItem('id', id);
 
-    const res = await fetch(API_BASE + '/tasks?id=' + id);
-    const resTasks = (await res.json()).tasks;
-    const sortedTasks = resTasks.sort((a,b) => new Date(b.createdAt) - new Date(a.createdAt)).reverse();
+    const res = await fetch(API_BASE + '/tasks?userId=' + id);
+    const json = await res.json();
+    if (json.error) return this.props.enqueueSnackbar(json.error, { autoHideDuration: 5000, variant: 'error' });
+    const sortedTasks = json.tasks.sort((a,b) => new Date(b.createdAt) - new Date(a.createdAt)).reverse();
     this.setState({ tasks: sortedTasks });
     console.log(sortedTasks);
   }
@@ -89,4 +91,4 @@ class TaskList extends Component {
   }
 }
 
-export default withStyles(styles)(TaskList);
+export default withStyles(styles)(withSnackbar(TaskList));

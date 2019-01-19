@@ -5,6 +5,7 @@ import ListItemText from '@material-ui/core/ListItemText';
 import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
 import { API_BASE } from '../config';
+import { withSnackbar } from 'notistack';
 
 const styles = theme => ({
   root: {
@@ -53,17 +54,18 @@ class NewTask extends Component {
     event.preventDefault();
     const name = document.getElementById('task-name-input').value.trim();
     if (name.length === 0) return;
-    const res = await fetch(API_BASE + '/tasks?id=' + window.localStorage.getItem('id').trim(), {
+    const res = await fetch(API_BASE + '/tasks?userId=' + window.localStorage.getItem('id').trim(), {
       method: 'POST',
       body: JSON.stringify({
-        name
+        name,
+        done: false
       }),
       headers: {
         'Content-Type': 'application/json'
       }
     });
     const json = await res.json();
-    if (json.error)
+    if (json.error) return this.props.enqueueSnackbar(json.error, { autoHideDuration: 5000, variant: 'error' });
     this.props.pushNewTask(json.task);
   }
 
@@ -95,4 +97,4 @@ class NewTask extends Component {
   }
 }
 
-export default withStyles(styles)(NewTask);
+export default withStyles(styles)(withSnackbar(NewTask));
