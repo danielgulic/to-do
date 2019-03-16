@@ -41,7 +41,17 @@ router.patch('/:taskId', async (req, res) => {
   if (!handleJoi(req, res, editTaskSchema)) return;
   await r.table('tasks').get(req.params.taskId).update(filterUnexpectedData(req.body, {}, editTaskSchema)).run();
   res.json({ task: await r.table('tasks').get(req.params.taskId).run() });
+});
 
+router.delete('/:taskId', async (req, res) => {
+  if (!req.query.userId) return res.status(400).json({ error: 'Missing user ID' });
+  if (req.query.userId.length !== 36) return res.status(400).json({ error: 'Invalid user ID' });
+  if (req.params.taskId.length !== 36) return res.status(400).json({ error: 'Invalid task ID' });
+  const task = await r.table('tasks').get(req.params.taskId).run();
+  if (!task) return res.status(404).json({ error: 'Unknown task' });
+  if (req.query.userId !== task.createdBy) return res.status(403).json({ error: 'Incorrect user ID' });
+  await r.table('tasks').get(req.params.taskId).delete().run();
+  res.json({ task: null });
 });
 
 module.exports = router;
