@@ -57,8 +57,7 @@ class NewTask extends Component {
     const res = await fetch(API_BASE + '/tasks?userId=' + window.localStorage.getItem('id').trim(), {
       method: 'POST',
       body: JSON.stringify({
-        name,
-        done: false
+        name
       }),
       headers: {
         'Content-Type': 'application/json'
